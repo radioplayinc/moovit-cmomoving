@@ -2,9 +2,10 @@
    js-three-tsl example, hand-rolled: no Motion dependency).
    Particles sampled from logo.jpg form the mark, swirl into a turbulent globe
    on press/hold, and spring back on release. Falls back to the static <img>
-   when WebGPU/TSL/the image is unavailable, or under prefers-reduced-motion. */
-import * as THREE from 'three/webgpu';
-import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'three/tsl';
+   when WebGPU/TSL/the image is unavailable, or under prefers-reduced-motion.
+   Note: three.js (~1.8MB) is loaded lazily via dynamic import AFTER the
+   reduced-motion/WebGPU guard, so visitors who get the static logo never
+   download it. */
 
 (function () {
   var fxDone = false;
@@ -38,6 +39,15 @@ import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'th
   function lum(r, g, b) { return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255; }
 
   async function boot() {
+    var THREE, tsl;
+    try {
+      THREE = await import('three/webgpu');
+      tsl = await import('three/tsl');
+    } catch (e) { settleUI(); return; }
+    var attribute = tsl.attribute, cos = tsl.cos, mix = tsl.mix,
+        positionLocal = tsl.positionLocal, sin = tsl.sin, time = tsl.time,
+        uniform = tsl.uniform, vec3 = tsl.vec3;
+
     var logo = new Image();
     logo.src = 'logo.jpg';
     await logo.decode();
