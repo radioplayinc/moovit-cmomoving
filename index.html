@@ -36,6 +36,7 @@
     .app:before{width:44vw;height:44vw;min-width:280px;min-height:280px;left:-22vw;bottom:-32vw}.app:after{width:24vw;height:24vw;min-width:180px;min-height:180px;right:-12vw;top:-10vw}
     .chrome{position:absolute;z-index:20;left:clamp(16px,3vw,42px);right:clamp(16px,3vw,42px);top:max(15px,env(safe-area-inset-top));display:none;gap:12px;align-items:center}
     .app.in-flow .chrome{display:flex}
+    .app.broker-mode .progress-track,.app.broker-mode .restart{display:none}
     .flow-logo{display:none;position:absolute;z-index:20;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);padding:0;background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:2px 2px 0 var(--shadow);cursor:pointer}
     .flow-logo img{display:block;height:34px;width:auto;border-radius:8px}
     .app.in-flow .flow-logo{display:block}
@@ -208,6 +209,7 @@ window.MOOVIT_DB=(function(){
     var _l=document.querySelector('[data-screen="loader"]');if(_l)_l.classList.remove('active');
     var _b=document.querySelector('[data-screen="broker-alerts"]');if(_b){_b.classList.add('active');splitTitle(_b.querySelector('h2'));}
     current='broker-alerts';
+    app.classList.add('in-flow','broker-mode');
   }else{
     window.setTimeout(function(){document.getElementById('enterBtn').classList.add('ready')},1850);
   }
@@ -435,6 +437,7 @@ window.MOOVIT_DB=(function(){
     else{go(next,true)}
   });
   document.getElementById('backBtn').addEventListener('click',function(){
+    if(brokerMode){window.location.href='./';return;}
     if(isMorphing||!history.length)return;
     var prev=history.pop();
     if(!reducedMotion&&morphOrigin&&morphOrigin.to===current&&morphOrigin.from===prev){var c=morphOrigin.card;morphOrigin=null;goMorphBack(c,prev)}
