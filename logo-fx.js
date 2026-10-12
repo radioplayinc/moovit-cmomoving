@@ -7,11 +7,20 @@ import * as THREE from 'three/webgpu';
 import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'three/tsl';
 
 (function () {
+  var fxDone = false;
+  function settleUI() {
+    if (fxDone) return; fxDone = true;
+    var loader = document.querySelector('[data-screen="loader"]');
+    if (loader) loader.classList.add('fx-settled');
+    try { window.dispatchEvent(new CustomEvent('logoFxSettled')); } catch (e) {}
+  }
+  window.setTimeout(settleUI, 7000);
+
   var img = document.querySelector('img.brandlogo');
-  if (!img) return;
+  if (!img) { settleUI(); return; }
   var reduced = false;
   try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-  if (reduced || !('gpu' in navigator)) return;
+  if (reduced || !('gpu' in navigator)) { settleUI(); return; }
 
   var stage = document.createElement('div');
   stage.className = 'logo-stage';
@@ -179,6 +188,7 @@ import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'th
       v += vel * dt;
       globe.value = v;
       photoMat.opacity = hiRes(v);
+      if (!fxDone && settled && v < 0.03 && photoMat.opacity > 0.97) settleUI();
       renderer.render(scene, camera);
       frames++;
       if (!gpuOk && frames === 90) {
@@ -198,7 +208,8 @@ import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'th
     });
   }
 
-  boot().catch(function () {
+  boot().catch(function (err) {
+    settleUI();
     if (stage.parentNode) stage.parentNode.removeChild(stage);
     img.classList.remove('fx-hidden');
   });
