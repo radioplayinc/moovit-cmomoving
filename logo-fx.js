@@ -61,7 +61,7 @@ import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'th
     if (!samples.length) return;
 
     var n = samples.length;
-    var LOGO_W = 1.7, LOGO_H = LOGO_W / aspect, GLOBE_R = 0.62;
+    var LOGO_H = 1.7, LOGO_W = LOGO_H * aspect, GLOBE_R = 0.62;
 
     var imagePos = new Float32Array(n * 3);
     var globePos = new Float32Array(n * 3);
