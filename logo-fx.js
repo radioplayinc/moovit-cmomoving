@@ -166,6 +166,7 @@ import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'th
     }
 
     var firstFrame = false, last = performance.now(), startAt = last + 900;
+    var frames = 0, gpuOk = false;
     renderer.setAnimationLoop(function () {
       if (!visible) { last = performance.now(); return; }
       var now = performance.now();
@@ -179,6 +180,16 @@ import { attribute, cos, mix, positionLocal, sin, time, uniform, vec3 } from 'th
       globe.value = v;
       photoMat.opacity = hiRes(v);
       renderer.render(scene, camera);
+      frames++;
+      if (!gpuOk && frames === 90) {
+        try { gpuOk = renderer.info.render.triangles > 0; } catch (e) { gpuOk = false; }
+        if (!gpuOk) {
+          try { renderer.setAnimationLoop(null); } catch (e) {}
+          if (stage.parentNode) stage.parentNode.removeChild(stage);
+          img.classList.remove('fx-hidden');
+          return;
+        }
+      }
       if (!firstFrame) {
         firstFrame = true;
         img.classList.add('fx-hidden');
